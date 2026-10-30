@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../artwork_store.dart';
 import '../styles.dart';
-import '../widgets/sample_artwork.dart';
+import '../explore_ideas.dart';
+import '../widgets/chitra_logo.dart';
+import '../widgets/explore_image.dart';
 import 'home_screen.dart';
 import 'account_pages.dart';
+import '../app_icons.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -24,7 +27,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ];
   static const _descriptions = [
     'Type a sentence like “a fox reading in a library”. No art skills needed.',
-    'Photorealistic, anime, cyberpunk, watercolor or 3D. The style changes how your image looks.',
+    'Choose from ten styles, from photorealistic to pixel art. The style changes how your image looks.',
     'Improve your words first, so the picture matches your idea.',
   ];
 
@@ -51,10 +54,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _illustration(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     if (_step == 2) {
-      return const SizedBox(
+      return SizedBox(
         width: 220,
         height: 220,
-        child: SampleArtwork(seed: 2, radius: 32),
+        child: ExploreImage(idea: exploreIdeas.first, radius: 32),
       );
     }
     return Container(
@@ -92,7 +95,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 runSpacing: 6,
                 alignment: WrapAlignment.center,
                 children: [
-                  for (final style in artStyles)
+                  for (final style in artStyles.take(6))
                     Chip(
                       label: Text(style.name),
                       visualDensity: VisualDensity.compact,
@@ -269,14 +272,10 @@ class _AuthScreenState extends State<AuthScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 24),
-                  Icon(
-                    Icons.auto_awesome,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 42,
-                  ),
+                  const Center(child: ChitraLogo(size: 72, animate: false)),
                   const SizedBox(height: 18),
                   Text(
-                    'Welcome to Imagine AI',
+                    'Welcome to Chitra AI',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall
                         ?.copyWith(fontWeight: FontWeight.w800),
@@ -352,9 +351,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         onPressed: () =>
                             setState(() => _hidePassword = !_hidePassword),
                         icon: Icon(
-                          _hidePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
+                          _hidePassword ? AppIcons.eye : AppIcons.eyeSlash,
                         ),
                       ),
                     ),

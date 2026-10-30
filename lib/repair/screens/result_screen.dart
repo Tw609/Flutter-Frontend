@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../artwork_store.dart';
+import '../image_export.dart';
 import '../models/artwork.dart';
 import '../ui_helpers.dart';
 import '../widgets/artwork_image.dart';
+import '../app_icons.dart';
 
 /// What the result screen can ask the rest of the app to do.
 class ArtworkActions {
@@ -38,6 +40,44 @@ class ResultScreen extends StatelessWidget {
       case _ResultMenu.delete:
         _confirmDelete(context);
     }
+  }
+
+  /// The three-dot menu: a bottom sheet with one row per action.
+  void _showMenu(BuildContext context) {
+    void choose(BuildContext sheetContext, _ResultMenu item) {
+      Navigator.pop(sheetContext);
+      _onMenu(context, item);
+    }
+
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _MenuRow(
+                icon: AppIcons.pencilSimple,
+                label: 'Edit prompt and style',
+                onTap: () => choose(sheetContext, _ResultMenu.edit),
+              ),
+              _MenuRow(
+                icon: AppIcons.info,
+                label: 'Image details',
+                onTap: () => choose(sheetContext, _ResultMenu.details),
+              ),
+              _MenuRow(
+                icon: AppIcons.trash,
+                label: 'Delete image',
+                isDanger: true,
+                onTap: () => choose(sheetContext, _ResultMenu.delete),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _showDetails(BuildContext context) {
@@ -75,7 +115,7 @@ class ResultScreen extends StatelessWidget {
                     const SnackBar(content: Text('Prompt copied.')),
                   );
                 },
-                icon: const Icon(Icons.copy),
+                icon: const Icon(AppIcons.copy),
                 label: const Text('Copy prompt'),
               ),
             ],
@@ -130,23 +170,10 @@ class ResultScreen extends StatelessWidget {
     appBar: AppBar(
       title: const Text('Your image'),
       actions: [
-        PopupMenuButton<_ResultMenu>(
+        IconButton(
           tooltip: 'More options',
-          onSelected: (item) => _onMenu(context, item),
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: _ResultMenu.edit,
-              child: _MenuRow(Icons.edit_outlined, 'Edit prompt and style'),
-            ),
-            const PopupMenuItem(
-              value: _ResultMenu.details,
-              child: _MenuRow(Icons.info_outline, 'Image details'),
-            ),
-            const PopupMenuItem(
-              value: _ResultMenu.delete,
-              child: _MenuRow(Icons.delete_outline, 'Delete image'),
-            ),
-          ],
+          onPressed: () => _showMenu(context),
+          icon: const Icon(AppIcons.dotsThreeVertical),
         ),
       ],
     ),
@@ -179,7 +206,7 @@ class ResultScreen extends StatelessWidget {
         const SizedBox(height: 12),
         FilledButton.icon(
           onPressed: () => actions.onRegenerate(artwork),
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(AppIcons.arrowClockwise),
           label: const Text('Regenerate'),
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
         ),
@@ -189,20 +216,45 @@ class ResultScreen extends StatelessWidget {
 }
 
 class _MenuRow extends StatelessWidget {
-  const _MenuRow(this.icon, this.label);
+  const _MenuRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isDanger = false,
+  });
 
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
+  final bool isDanger;
 
   @override
-  Widget build(BuildContext context) =>
-      Row(children: [Icon(icon), const SizedBox(width: 12), Text(label)]);
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = isDanger ? scheme.error : scheme.onSurface;
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(icon, color: color),
+      title: Text(label, style: TextStyle(color: color)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    );
+  }
 }
 
 class ArtworkActionRow extends StatelessWidget {
   const ArtworkActionRow({super.key, required this.artwork});
 
   final Artwork artwork;
+
+  Future<void> _download(BuildContext context) async {
+    final message = await saveToGallery(artwork);
+    if (context.mounted) showNotice(context, message);
+  }
+
+  Future<void> _share(BuildContext context) async {
+    final message = await shareImage(artwork);
+    if (message != null && context.mounted) showNotice(context, message);
+  }
 
   @override
   Widget build(BuildContext context) => Row(
@@ -212,36 +264,61 @@ class ArtworkActionRow extends StatelessWidget {
           valueListenable: ArtworkStore.saved,
           builder: (context, saved, _) {
             final isSaved = saved.contains(artwork);
-            return OutlinedButton.icon(
-              onPressed: () => ArtworkStore.toggleSaved(artwork),
-              icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_outline),
-              label: Text(isSaved ? 'Saved' : 'Save'),
+            return _ActionButton(
+              icon: isSaved
+                  ? AppIcons.bookmarkSimpleFill
+                  : AppIcons.bookmarkSimple,
+              label: isSaved ? 'Saved' : 'Save',
+              onTap: () => ArtworkStore.toggleSaved(artwork),
             );
           },
         ),
       ),
-      const SizedBox(width: 8),
       Expanded(
-        child: OutlinedButton.icon(
-          onPressed: () {
-            // TODO: Save the image file to the device once image bytes exist.
-            showNotice(context, 'Download is coming soon.');
-          },
-          icon: const Icon(Icons.download_outlined),
-          label: const Text('Download'),
+        child: _ActionButton(
+          icon: AppIcons.downloadSimple,
+          label: 'Download',
+          onTap: () => _download(context),
         ),
       ),
-      const SizedBox(width: 8),
       Expanded(
-        child: OutlinedButton.icon(
-          onPressed: () {
-            // TODO: Open the device share sheet once image bytes exist.
-            showNotice(context, 'Sharing is coming soon.');
-          },
-          icon: const Icon(Icons.share_outlined),
-          label: const Text('Share'),
+        child: _ActionButton(
+          icon: AppIcons.shareNetwork,
+          label: 'Share',
+          onTap: () => _share(context),
         ),
       ),
     ],
+  );
+}
+
+/// Icon with its label underneath. Three of these fit in a row on any phone
+/// width, so no label wraps onto a second line.
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(14),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon),
+          const SizedBox(height: 4),
+          Text(label, style: Theme.of(context).textTheme.labelMedium),
+        ],
+      ),
+    ),
   );
 }

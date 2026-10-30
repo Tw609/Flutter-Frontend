@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../artwork_store.dart';
 import '../theme_state.dart';
 import '../ui_helpers.dart';
+import '../app_icons.dart';
 
 class AppearancePage extends StatelessWidget {
   const AppearancePage({super.key});
@@ -14,7 +15,7 @@ class AppearancePage extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       children: [
         Text(
-          'Choose how Imagine AI looks. Use the sun or moon button on your profile to switch between Light and Dark.',
+          'Choose how Chitra AI looks. Use the sun or moon button on your profile to switch between Light and Dark.',
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -109,7 +110,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
               filled: true,
               fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               border: const OutlineInputBorder(),
-              suffixIcon: const Icon(Icons.lock_outline, size: 18),
+              suffixIcon: const Icon(AppIcons.lock, size: 18),
             ),
           ),
           const SizedBox(height: 16),

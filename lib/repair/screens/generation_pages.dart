@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import '../artwork_store.dart';
 import '../models/artwork.dart';
 import '../services/image_service.dart';
+import '../widgets/chitra_logo.dart';
 import 'result_screen.dart';
+import '../app_icons.dart';
 
 /// Runs the generation and shows each real step as it happens. If it fails,
 /// it swaps itself for the matching error screen.
@@ -113,7 +115,8 @@ class _GeneratingPageState extends State<GeneratingPage> {
   }
 
   Widget _stepIcon(int index, ColorScheme scheme) {
-    if (index < _stage) return Icon(Icons.check_circle, color: scheme.primary);
+    if (index < _stage)
+      return Icon(AppIcons.checkCircleFill, color: scheme.primary);
     if (index == _stage) {
       return const SizedBox(
         width: 22,
@@ -121,7 +124,7 @@ class _GeneratingPageState extends State<GeneratingPage> {
         child: CircularProgressIndicator(strokeWidth: 2.5),
       );
     }
-    return Icon(Icons.radio_button_unchecked, color: scheme.outline);
+    return Icon(AppIcons.circle, color: scheme.outline);
   }
 
   @override
@@ -132,7 +135,7 @@ class _GeneratingPageState extends State<GeneratingPage> {
         leading: IconButton(
           tooltip: 'Cancel',
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.close),
+          icon: const Icon(AppIcons.x),
         ),
       ),
       body: Center(
@@ -141,15 +144,7 @@ class _GeneratingPageState extends State<GeneratingPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  color: scheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: const Icon(Icons.auto_awesome, size: 58),
-              ),
+              const ChitraLogo(size: 130),
               const SizedBox(height: 22),
               Text(
                 'Creating your image',
@@ -229,12 +224,12 @@ class _GenerationErrorPageState extends State<GenerationErrorPage> {
   }
 
   IconData get _icon => switch (widget.error.kind) {
-    ImageServiceErrorKind.busy => Icons.warning_amber_rounded,
-    ImageServiceErrorKind.rateLimited => Icons.hourglass_top,
-    ImageServiceErrorKind.blocked => Icons.block,
-    ImageServiceErrorKind.timeout => Icons.timer_off_outlined,
-    ImageServiceErrorKind.offline => Icons.wifi_off,
-    ImageServiceErrorKind.unknown => Icons.error_outline,
+    ImageServiceErrorKind.busy => AppIcons.warning,
+    ImageServiceErrorKind.rateLimited => AppIcons.hourglassMedium,
+    ImageServiceErrorKind.blocked => AppIcons.prohibit,
+    ImageServiceErrorKind.timeout => AppIcons.timer,
+    ImageServiceErrorKind.offline => AppIcons.wifiSlash,
+    ImageServiceErrorKind.unknown => AppIcons.warningCircle,
   };
 
   @override
@@ -249,7 +244,7 @@ class _GenerationErrorPageState extends State<GenerationErrorPage> {
         leading: IconButton(
           tooltip: 'Close',
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.close),
+          icon: const Icon(AppIcons.x),
         ),
       ),
       body: SafeArea(

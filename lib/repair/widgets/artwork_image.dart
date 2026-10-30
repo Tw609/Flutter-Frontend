@@ -2,14 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../models/artwork.dart';
 import 'sample_artwork.dart';
+import '../app_icons.dart';
 
 /// Shows the real image when the artwork has an address, otherwise the local
 /// sample picture.
 class ArtworkImage extends StatelessWidget {
-  const ArtworkImage({super.key, required this.artwork, this.radius = 22});
+  const ArtworkImage({
+    super.key,
+    required this.artwork,
+    this.radius = 22,
+    this.cacheWidth,
+  });
 
   final Artwork artwork;
   final double radius;
+
+  /// Decode the image at this width. Use it for small thumbnails.
+  final int? cacheWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +32,9 @@ class ArtworkImage extends StatelessWidget {
           child: Image.memory(
             bytes,
             fit: BoxFit.cover,
+            cacheWidth: cacheWidth,
             errorBuilder: (context, error, stackTrace) =>
-                Center(child: Icon(Icons.broken_image_outlined, size: 48)),
+                Center(child: Icon(AppIcons.imageBroken, size: 48)),
           ),
         ),
       );
@@ -43,7 +53,7 @@ class ArtworkImage extends StatelessWidget {
               ? child
               : const Center(child: CircularProgressIndicator()),
           errorBuilder: (context, error, stackTrace) =>
-              const Center(child: Icon(Icons.broken_image_outlined, size: 48)),
+              const Center(child: Icon(AppIcons.imageBroken, size: 48)),
         ),
       ),
     );

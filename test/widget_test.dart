@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_application_1/repair/app.dart';
 import 'package:flutter_application_1/repair/artwork_store.dart';
+import 'package:flutter_application_1/repair/image_export.dart';
 import 'package:flutter_application_1/repair/services/image_service.dart';
 
 Future<void> _logIn(WidgetTester tester) async {
-  await tester.pumpWidget(const ImagineAiApp());
+  await tester.pumpWidget(const ChitraApp());
   await tester.tap(find.text('Skip'));
   await tester.pumpAndSettle();
 
@@ -39,34 +40,34 @@ void main() {
   });
 
   testWidgets('onboarding shows the first intro', (tester) async {
-    await tester.pumpWidget(const ImagineAiApp());
+    await tester.pumpWidget(const ChitraApp());
     expect(find.text('Describe what you imagine'), findsOneWidget);
   });
 
   testWidgets('tapping Next very quickly never goes past step 3', (
     tester,
   ) async {
-    await tester.pumpWidget(const ImagineAiApp());
+    await tester.pumpWidget(const ChitraApp());
     for (var tap = 0; tap < 5; tap++) {
       await tester.tap(find.text('Next'), warnIfMissed: false);
     }
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Welcome to Imagine AI'), findsOneWidget);
+    expect(find.text('Welcome to Chitra AI'), findsOneWidget);
   });
 
   testWidgets('Skip opens login', (tester) async {
-    await tester.pumpWidget(const ImagineAiApp());
+    await tester.pumpWidget(const ChitraApp());
     await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
-    expect(find.text('Welcome to Imagine AI'), findsOneWidget);
+    expect(find.text('Welcome to Chitra AI'), findsOneWidget);
   });
 
   testWidgets(
     'sign up errors sit on the right fields and clear on tab switch',
     (tester) async {
-      await tester.pumpWidget(const ImagineAiApp());
+      await tester.pumpWidget(const ChitraApp());
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
 
@@ -173,5 +174,22 @@ void main() {
     await tester.tap(find.text('Anime'));
     await tester.pumpAndSettle();
     expect(find.textContaining('You changed the style'), findsOneWidget);
+  });
+
+  // The demo pictures have no image file, so these never reach the plugins.
+  testWidgets('Download and Share explain that a demo picture has no file', (
+    tester,
+  ) async {
+    await _logIn(tester);
+    await _generate(tester, 'A fox reading in a library');
+
+    await tester.tap(find.text('Download'));
+    await tester.pump();
+    expect(find.text(noImageFileMessage), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+    await tester.tap(find.text('Share'));
+    await tester.pump();
+    expect(find.text(noImageFileMessage), findsOneWidget);
   });
 }

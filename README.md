@@ -1,4 +1,4 @@
-# Imagine AI
+# Chitra AI
 
 កម្មវិធី Flutter UI demo សម្រាប់បង្កើតរូបភាពពី prompt ជាអត្ថបទ និងរចនាប័ទ្មដែលបានជ្រើស។ រូប preview ប្រើ `SampleArtwork` ក្នុងមូលដ្ឋាន។ មិនទាន់ភ្ជាប់ image model API, backend, authentication ពិត ឬ cloud storage ទេ។ មិនមាន package ថ្មីត្រូវបានបន្ថែម។
 

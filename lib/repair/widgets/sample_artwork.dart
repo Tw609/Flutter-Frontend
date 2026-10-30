@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../app_icons.dart';
+
 /// Local illustration used until an image-generation API is connected.
 class SampleArtwork extends StatelessWidget {
   const SampleArtwork({super.key, required this.seed, this.radius = 22});
@@ -35,7 +37,7 @@ class SampleArtwork extends StatelessWidget {
               top: 30,
               left: 36,
               child: Icon(
-                Icons.wb_sunny_rounded,
+                AppIcons.sun,
                 color: Colors.white.withValues(alpha: .85),
                 size: 34,
               ),
@@ -44,18 +46,14 @@ class SampleArtwork extends StatelessWidget {
               bottom: -8,
               left: -14,
               right: -12,
-              child: Icon(
-                Icons.landscape_rounded,
-                size: 220,
-                color: palettes[2],
-              ),
+              child: Icon(AppIcons.mountains, size: 220, color: palettes[2]),
             ),
             Positioned(
               bottom: 12,
               left: 40,
               right: 38,
               child: Icon(
-                Icons.landscape_rounded,
+                AppIcons.mountains,
                 size: 135,
                 color: palettes[2].withValues(alpha: .7),
               ),
@@ -63,7 +61,7 @@ class SampleArtwork extends StatelessWidget {
             const Positioned(
               right: 28,
               top: 28,
-              child: Icon(Icons.auto_awesome, size: 18, color: Colors.white),
+              child: Icon(AppIcons.sparkle, size: 18, color: Colors.white),
             ),
           ],
         ),
